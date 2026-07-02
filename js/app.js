@@ -1,10 +1,13 @@
 // Habit Tracker JavaScript
+// Fully defensive version
 const habitInput = document.getElementById('habit-input');
-const categorySelect = document.getElementById('category-select');
 const addBtn = document.getElementById('add-habit-btn');
 const habitsList = document.getElementById('habits-list');
 const totalHabitsEl = document.getElementById('total-habits');
 const longestStreakEl = document.getElementById('longest-streak');
+
+// Safely get category select (may not exist)
+const categorySelect = document.getElementById('category-select');
 
 let habits = JSON.parse(localStorage.getItem('habits')) || [];
 
@@ -14,14 +17,14 @@ function saveHabits() {
     updateStats();
 }
 
-// Add new habit (category is now optional and safe)
+// Add new habit - completely safe version
 function addHabit() {
-    const name = habitInput.value.trim();
+    const name = habitInput ? habitInput.value.trim() : '';
     if (!name) return;
 
-    // Safe category handling
+    // Extremely safe category handling
     let category = 'General';
-    if (categorySelect && categorySelect.value) {
+    if (categorySelect && typeof categorySelect.value === 'string' && categorySelect.value.trim() !== '') {
         category = categorySelect.value;
     }
 
@@ -34,7 +37,7 @@ function addHabit() {
         longestStreak: 0
     });
 
-    habitInput.value = '';
+    if (habitInput) habitInput.value = '';
     renderHabits();
     saveHabits();
 }
@@ -125,6 +128,7 @@ function calculateStreaks(habit) {
 
 // Render all habits
 function renderHabits() {
+    if (!habitsList) return;
     habitsList.innerHTML = '';
 
     if (habits.length === 0) {
@@ -160,7 +164,7 @@ function renderHabits() {
 
         // Checkbox
         const checkbox = div.querySelector('.habit-checkbox');
-        checkbox.addEventListener('change', () => toggleHabit(habit.id));
+        if (checkbox) checkbox.addEventListener('change', () => toggleHabit(habit.id));
 
         // History button
         const historyBtn = div.querySelector('.action-btn[title="View History"]');
@@ -180,6 +184,7 @@ function renderHabits() {
 
 // Update stats
 function updateStats() {
+    if (!totalHabitsEl || !longestStreakEl) return;
     totalHabitsEl.textContent = habits.length;
 
     let maxStreak = 0;
@@ -190,8 +195,8 @@ function updateStats() {
 }
 
 // Event listeners
-addBtn.addEventListener('click', addHabit);
-habitInput.addEventListener('keypress', (e) => {
+if (addBtn) addBtn.addEventListener('click', addHabit);
+if (habitInput) habitInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addHabit();
 });
 
