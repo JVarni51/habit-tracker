@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Habit Tracker</h1>
+            <p class="subtitle">Build better habits, one day at a time.</p>
+        </header>
+
+        <!-- Add New Habit -->
+        <div class="add-habit">
+            <input type="text" id="habit-input" placeholder="Enter new habit (e.g., Exercise 30 mins)">
+            <button id="add-habit-btn">Add Habit</button>
+        </div>
+
+        <!-- Habits List -->
+        <div class="habits-section">
+            <h2>Your Habits</h2>
+            <div id="habits-list" class="habits-list">
+                <!-- Habits will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-habits">0</div>
+                <div class="stat-label">Active Habits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="longest-streak">0</div>
+                <div class="stat-label">Longest Streak</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
