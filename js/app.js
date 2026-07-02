@@ -1,0 +1,137 @@
+// Habit Tracker JavaScript
+const habitInput = document.getElementById('habit-input');
+const addBtn = document.getElementById('add-habit-btn');
+const habitsList = document.getElementById('habits-list');
+const totalHabitsEl = document.getElementById('total-habits');
+const longestStreakEl = document.getElementById('longest-streak');
+
+let habits = JSON.parse(localStorage.getItem('habits')) || [];
+
+// Save to localStorage
+function saveHabits() {
+    localStorage.setItem('habits', JSON.stringify(habits));
+    updateStats();
+}
+
+// Add new habit
+function addHabit() {
+    const name = habitInput.value.trim();
+    if (!name) return;
+
+    habits.push({
+        id: Date.now(),
+        name: name,
+        completedDates: [],
+        currentStreak: 0,
+        longestStreak: 0
+    });
+
+    habitInput.value = '';
+    renderHabits();
+    saveHabits();
+}
+
+// Toggle habit completion for today
+function toggleHabit(id) {
+    const today = new Date().toISOString().split('T')[0];
+    const habit = habits.find(h => h.id === id);
+
+    if (!habit) return;
+
+    const index = habit.completedDates.indexOf(today);
+
+    if (index === -1) {
+        habit.completedDates.push(today);
+        habit.completedDates.sort();
+    } else {
+        habit.completedDates.splice(index, 1);
+    }
+
+    // Recalculate streaks
+    calculateStreaks(habit);
+    renderHabits();
+    saveHabits();
+}
+
+// Calculate current and longest streak
+function calculateStreaks(habit) {
+    if (habit.completedDates.length === 0) {
+        habit.currentStreak = 0;
+        return;
+    }
+
+    let streak = 1;
+    let maxStreak = 1;
+    const dates = habit.completedDates.sort();
+
+    for (let i = 1; i < dates.length; i++) {
+        const prev = new Date(dates[i - 1]);
+        const curr = new Date(dates[i]);
+        const diff = (curr - prev) / (1000 * 3600 * 24);
+
+        if (diff === 1) {
+            streak++;
+            maxStreak = Math.max(maxStreak, streak);
+        } else {
+            streak = 1;
+        }
+    }
+
+    habit.currentStreak = streak;
+    habit.longestStreak = Math.max(habit.longestStreak || 0, maxStreak);
+}
+
+// Render all habits
+function renderHabits() {
+    habitsList.innerHTML = '';
+
+    if (habits.length === 0) {
+        habitsList.innerHTML = '<p style="color:#64748b; text-align:center; padding:2rem;">No habits yet. Add one above!</p>';
+        return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    habits.forEach(habit => {
+        const isCompletedToday = habit.completedDates.includes(today);
+
+        const div = document.createElement('div');
+        div.className = 'habit-item';
+        div.innerHTML = `
+            <div class="habit-info">
+                <input type="checkbox" class="habit-checkbox" ${isCompletedToday ? 'checked' : ''}>
+                <span class="habit-name">${habit.name}</span>
+            </div>
+            <div>
+                <span class="streak">🔥 ${habit.currentStreak} day streak</span>
+            </div>
+        `;
+
+        // Checkbox event
+        const checkbox = div.querySelector('.habit-checkbox');
+        checkbox.addEventListener('change', () => toggleHabit(habit.id));
+
+        habitsList.appendChild(div);
+    });
+}
+
+// Update stats
+function updateStats() {
+    totalHabitsEl.textContent = habits.length;
+
+    let maxStreak = 0;
+    habits.forEach(h => {
+        if (h.currentStreak > maxStreak) maxStreak = h.currentStreak;
+    });
+    longestStreakEl.textContent = maxStreak;
+}
+
+// Event Listeners
+addBtn.addEventListener('click', addHabit);
+habitInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addHabit();
+});
+
+// Initial render
+renderHabits();
+updateStats();
