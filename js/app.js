@@ -14,12 +14,16 @@ function saveHabits() {
     updateStats();
 }
 
-// Add new habit
+// Add new habit (category is now optional and safe)
 function addHabit() {
     const name = habitInput.value.trim();
-    const category = categorySelect.value;
-
     if (!name) return;
+
+    // Safe category handling
+    let category = 'General';
+    if (categorySelect && categorySelect.value) {
+        category = categorySelect.value;
+    }
 
     habits.push({
         id: Date.now(),
@@ -160,15 +164,15 @@ function renderHabits() {
 
         // History button
         const historyBtn = div.querySelector('.action-btn[title="View History"]');
-        historyBtn.addEventListener('click', () => viewHistory(habit.id));
+        if (historyBtn) historyBtn.addEventListener('click', () => viewHistory(habit.id));
 
         // Edit button
         const editBtn = div.querySelector('.action-btn[title="Edit"]');
-        editBtn.addEventListener('click', () => editHabit(habit.id));
+        if (editBtn) editBtn.addEventListener('click', () => editHabit(habit.id));
 
         // Delete button
         const deleteBtn = div.querySelector('.delete-btn');
-        deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
+        if (deleteBtn) deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
 
         habitsList.appendChild(div);
     });
